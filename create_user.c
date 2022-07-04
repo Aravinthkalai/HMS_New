@@ -2,6 +2,9 @@
 #include<stdlib.h>
 #include<stdint.h>
 #include<string.h>
+#include <stdio.h>
+#include <libxml/parser.h>
+
 void Main_Menu();
 void Get_UserData();
 void Create_User();
@@ -76,6 +79,26 @@ void Get_UserData()
 
 void Create_User()
 {
+struct  xml_string{
+   unsigned char LUID[10];
+   unsigned char LName[20];
+   unsigned char LAge[10];
+   unsigned char LPhoneNumber[20];
+   unsigned char LGender[2];
+   unsigned char LHeight[5];
+   unsigned char LWeight[5];
+   unsigned char LPassword[20];
+};
+struct xml_string XML_String;
+XML_String.LUID;
+XML_String.LName;
+XML_String.LAge;
+XML_String.LPhoneNumber;
+XML_String.LGender;
+XML_String.LHeight;
+XML_String.LWeight;
+XML_String.LPassword;
+
     struct node *user=malloc(sizeof(struct node));
     unsigned char LName[100];
     unsigned int LAge;
@@ -98,6 +121,7 @@ void Create_User()
         memset(user->Name,0,sizeof(user->Name));
         Create_User();
     }
+    strcpy(XML_String.LName, user->Name);
     printf("Your Name : %s\n",user->Name);
   
 
@@ -111,13 +135,14 @@ void Create_User()
         goto L_Age;
     }
     user->Age=LAge;
-
+    sprintf(XML_String.LAge,"%d",LAge);
 
  L_Gender:   printf("Enter Your Gender(M/F):\n");
     scanf("%s",LGender);
     if(!(strcmp(LGender,"M")) || !(strcmp(LGender,"F")))
     {
         strcpy(user->Gender,LGender);
+        strcpy(XML_String.LGender,LGender);
     }
     else
     {
@@ -134,6 +159,7 @@ void Create_User()
         if((strlen(LAPhoneNumber))==10)
         {
             user->PhoneNumber=LPhoneNumber;
+            sprintf(XML_String.LPhoneNumber,"%ld",LPhoneNumber);
         }
         else
         {
@@ -153,6 +179,9 @@ void Create_User()
         goto L_Height;
     }
     user->Height=LHeight;
+
+
+    sprintf(XML_String.LHeight,"%f",LHeight);
    
     L_Weight:printf("Enter Your Weight in (kg):\n");
     scanf("%f",&LWeight);
@@ -165,6 +194,8 @@ void Create_User()
     }
     user->Weight=LWeight;
     
+    sprintf(XML_String.LWeight,"%f",LWeight);
+
     L_Password:printf("Enter Your Password:\n");
     scanf("%s",LPassword);
     if(8>(strlen(LPassword)))
@@ -175,13 +206,7 @@ void Create_User()
     }
     strcpy(user->Password,LPassword);
     
-      if(LWeight<2 || LWeight>636)
-    {
-        printf("Invalid Weight try again\n");
-        LWeight=0;
-        goto L_Weight;
-    }
-    user->Weight=LWeight;
+    strcpy(XML_String.LPassword,LPassword);
 
     L_rand:   LUID = rand() % 10000 + 1000;
       if(LUID>9999)
@@ -189,7 +214,12 @@ void Create_User()
         goto L_rand;
       }
       user->UID=LUID;
+      sprintf(XML_String.LUID,"%d",LUID);
     
+    xml_open();
+    add_node(root_element,XML_String.LUID,"user_2",XML_String.LName,XML_String.LAge,XML_String.LGender,XML_String.LPhoneNumber,XML_String.LHeight,XML_String.LWeight,XML_String.LPassword);
+    xml_close();
+ 
     printf("Your Name : %s\n",user->Name);
     printf("Your Age : %d\n",user->Age);
     printf("Your Gender : %s\n",user->Gender);
@@ -212,6 +242,7 @@ void Create_User()
 }
 void BMI_calculator()
 {
+    //xml_read();
      struct node *Loop_ptr=NULL;
     unsigned int LUID;
     unsigned char LPassword[20];
@@ -385,6 +416,7 @@ void Update()
 }
 void View()
 {
+      // xml_read();
     struct node *Loop_ptr=NULL;
     unsigned char LName[100];
     unsigned int LAge;
@@ -508,3 +540,22 @@ void count_nodes()
     printf("Number of database : %d\n",count);
     Main_Menu();
 }
+
+
+xmlNode * find_node(xmlNode * node, char * name) {
+  xmlNode * result;
+  
+  if (node == NULL) return NULL;
+  
+  while(node) {
+    if((node->type == XML_ELEMENT_NODE) && (strcmp(node->name, name) == 0)) {
+      return node;
+    }
+    if(result = find_node(node->children, name)) return result;
+    node = node->next;
+  }
+  
+  return NULL;
+}
+
+
